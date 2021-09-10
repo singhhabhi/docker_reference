@@ -1,0 +1,62 @@
+COMBINE.YML
+--- # THIS PLAYBOOK HAVE HANDLERS, VARIABLES, LOOPS
+- hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  vars:
+          pkgname: httpd
+  tasks:
+          - name: Installing httpd with variables
+            action: yum name='{{pkgname}}' state=present
+            notify: restart httpd service
+          - name: Adding users into the nodes
+            user: name='{{item}}' state=present
+            with_items:
+                    - Bhupinder
+                    - Raju
+                    - Shyam
+  handlers:
+          - name: restart httpd service
+            action: service name='{{pkgname}}' state=restarted
+------------------------------------------------------------------------------------  
+TASK.YML
+--- #My first playbook task
+- hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  tasks:
+          - name: INSTALL HTTPD ON CENTOS7
+            action: yum name=httpd state=present
+---------------------------------------------------------------------------------
+CONDITION.YML
+--- # cusing the condition to write playbook
+- hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  tasks:
+          - name: INSTALL TREE ON THE NODES DEPENDING ON THE VERSION. THIS IS DEBIAN
+            command: apt-get -y install apache
+            when: ansible_os_family=="Debian"
+          - name: INSTALL TREE ON REDHAT
+            action: yum name=tree state=installed
+            when: ansible_os_family=="RedHat"
+-------------------------------------------------------------------------------------------------------------                  
+ROLES
+MASTER.YML
+--- # this is the MASTER PLAYBOOK
+- hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  roles:
+          - mywebserver
+~                                                                                     
+===
+roles/mywebserver/tasks/main.yml
+--- #THIS IS THE PLAYBOOK RELATED TO TASKS
+- name: INSTALL TREE ON BOTH YHE NODES
+  yum: pkg=tree state=latest
+----------------------------------------------------------------------------------------------------------------                              

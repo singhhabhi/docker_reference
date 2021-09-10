@@ -1,0 +1,889 @@
+Technically, Docker is one implementation of the container based virtualization technologies.
+Let's take a look at how virtualization technology has involved over time.
+In the pre virtualization days, we were using big server racks. Underneath we have the physical server.
+We install the desired operating system on it, Then we run the application on top of the operating system.
+And each physical machine would only run one application.
+So what was the problem with this model?
+	1.First of all, we have to purchase a physical machine in order to deploy each application, and those commercial servers can be very expensive.
+	And we might end up only using only a fraction of the CPU or memory of the machine.
+	The rest of the resources are simply wasted. But you have to pay for the whole hardware up-front.
+
+	2.Secondly, deployment time is often slow. The process of purchasing and configuring new physical servers can
+	take ages especially for big organizations.
+	
+	3.Thirdly, it will be painful to migrate our applications to servers from different vendor.Let's say we installed our application on an IBM server,
+	It would take us lots of effort to migrate to Dell servers.A significant amount of configuration change and manual intervention is required.
+------------------------------------
+The rescue is the Hypervisor-based virtualization technology.
+
+Let's take a look at this virtualization model.Underneath, we have the physical server. Then we install the desired operating system.
+on top of the operating system, a hypervisor layer is introduced which allows us to install multiple virtual machines on a single physical machine.
+Each VM can have a different operating system. For example, we can have ubuntu installed on one VM and Debian on another.
+In this way, we can run multiple operating systems on a single physical machine and each operating system can run a different application.
+This is the traditional model of virtualization which is being referenced as the Hypervisor based virtualization.
+
+Some of the popular hypervisor providers are VMware and Virtualbox.
+
+This Hypervisor-based virtualization model has obvious advantage over the one application on one server model.
+But it still has some limitations.
+First of all, each virtual machine still needs to have an operating system installed,this is an entire guest operating system with its
+own memory management, device drivers, daemons, etc.
+
+When we are talking about a Linux operating system, we are talking about a kernel.
+For example, here we have three host operating systems and three kernels.Even though they can be three different kernels, we are still replicating
+a lot of the core functionality of linux.
+
+In this traditional Hypervisor-based virtualization model, we have to have an entire operating system there simply to
+run our application which is still not efficient. Secondly, application portability is not guaranteed. Even though some progress has been achieved in getting virtual machines to run
+across different types of hypervisors, there is still a lot of work to be done there.
+VM portability is still at an early stage.
+---------------------============-------------==============================
+Finally, the container-based virtualization technology comes out.
+
+Docker is one implementation of the container based virtualization technologies.
+
+Underneath, we have our server, and this can be a either a physical machine or a virtual machine.
+Then we install our operating system on the server. On top of the OS, we install a container engine which allows
+us to run multiple guest instances. Each guest instance is called a container. Within each container, we install the application and all
+the libraries that application depends on. The key to understand the difference between the hypervisor based virtualization
+model and container based virtualization model is the replication of the kernels.In the traditional model, each application is running in its own copy
+of the kernel and the virtualization happens at the hardware level. In the new model we have only one kernel which will supply different
+binaries and runtime to the applications running in isolated containers. So the container will share the base runtime kernel which is the container engine.
+
+For the new model, the virtualization happens at the operating system level.
+
+Containers share the host's OS so this is much more efficient and light-weighted.
+
+You might want to ask, what do we gain by running those applications in different containers?
+
+Why can't we just run all applications in a single VM?
+
+This comes to the nature of isolation.
+
+As you know, most applications depend on various third-party libraries.
+
+Let's say we want to run two java applications with two different JREs.
+
+This is going to be quite challenging if we want to run those
+
+two applications in the same VM without introducing any conflicts.
+
+By leveraging containers, we can easily isolate the two runtime environments.
+
+Let's say application A requires JRE 8, then we just install JRE 8
+
+in the first container and run application A in the first container.
+
+For container B, it requires JRE 7, then we just install JRE 7 only
+
+for second container and run application B inside the second container.
+
+In this way, we have two containers on the same machine,
+
+running two different applications each with a different JRE version.
+
+This is what we call runtime isolation.
+
+Comparing to hypervisor based virtualization, container based virtualization has some obvious benefits.
+
+Firstly, it is more cost-effective.
+
+Container based virtualization does not create an entire virtual
+
+operating system. Instead only the required components are packaged
+
+up inside the container with the application. So containers consume less CPU,
+
+RAM and storage space than VMs, that means we can have more
+
+containers running on one physical machine than VMs.
+
+Secondly, faster Deployment Speed. Containers house the minimal requirements
+
+for running the application which can speed up as fast as a process.
+
+A container can be several times faster to boost than a VM.
+
+Thirdly, great portability. Because containers are essentially
+
+independent self-sufficient application bundles, they can be
+
+run across machines without compatibility issues.
+
+That's it for this lecture.
+
+See you later.
+--------------------------------------------------------------------------
+-------------------------------------------------------------------------
+Docker client-server architecture 
+----------------------------------------
+Let's talk a little bit about Docker's client and server architecture.
+
+Docker uses a client-server architecture with the daemon being the server.
+
+The user does not directly interact with the daemon,
+
+but instead through the Docker client.
+
+The Docker client is the primary user interface to Docker.
+
+It accepts commands from the user and communicates
+
+back and forth with a Docker daemon.
+
+There are two types of Docker clients.
+
+The typical command line client and Kitematic which
+
+is a Docker client with graphical interface.
+
+So if you don't like working with commands,
+
+kitematic is something you should check out.
+
+The daemon is the persistent process which does the heavy
+
+lifting of building, running, and distributing your Docker containers.
+
+Docker daemon is often referred as Docker engine or Docker server.
+
+On a typical Linux installation, the Docker client,
+
+the Docker daemon, and any containers run on the same host.
+
+You can also connect a Docker client to a remote
+
+Docker daemon, we will cover more about this later.
+
+But you can't run Docker natively in OS X or Windows
+
+because Docker daemon uses Linux-specific kernel features.
+
+So on OS X or Windows installation, the Docker daemon
+
+is running inside a Docker machine. The Docker machine is a
+
+lightweight Linux VM made specially to run the Docker daemon on OS X or Windows.
+------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+Docker terminology :-
+--------------------------
+The first two concepts are containers and images.
+
+Images are read only template used to create containers.
+Images are created with the Docker build command,
+either by us or by other Docker users.
+Because images can become quite large,
+images are designed to be composed of layers of other images,
+allowing a minimal amount of data to be sent
+when transferring images over the network.
+Images are stored in a Docker registry such as Docker
+
+hub, we will talk about it in a minute.
+
+Next, we will talk about containers.
+
+To use a programming metaphor, if an image is a class,
+
+then a container is an instance of a class, a runtime object.
+
+Containers are hopefully why you're using Docker; they're
+
+lightweight and portable encapsulations of an environment
+
+in which to run applications.
+
+We create a container from an image,
+
+and then run the container.
+
+And inside that container, we have all the binaries
+
+and dependencies we need to run our application.
+
+Here are another two important concepts about
+
+Docker, registry and repositories.
+
+A registry is where we store our images,
+
+you can host your own registry, or you can use
+
+Docker's public registry which is called Docker hub.
+
+Inside a registry, images are stored in repositories.
+
+Docker repository is a collection of different Docker
+
+images with the same name, that have different tags,
+
+each tag usually represents a different version of the image.
+
+Let's take a look at the Docker hub.
+
+Docker hub is a public registry which contains a
+
+large number of images you can use.
+
+Here we google Docker hub.
+
+The second entry is what we are looking for.
+
+Just click the link.
+
+Here we click browse to see what we can find.
+
+As we see, there are some popular official repositories listed here.
+
+Such as nginx, ubuntu and redis.
+
+Official repositories are certified repositories by Docker.
+
+For each repository, we can also see the number of stars
+
+and pulls which indicate the popularity of each repository.
+
+You can also search other repositories here.
+
+let's say we want to find some mysql images,
+
+let's type mysql and hit enter to search.
+
+See? So Docker hub found some mysql repositories here.
+
+Note the first one is marked as official.
+
+New Docker users are encouraged to use the official
+
+repositories in their projects. These repositories
+
+have clear documentation, promote best practices,
+
+and are designed for the most common use cases.
+
+Docker, Inc. which is the company behind Docker
+
+sponsors a dedicated team that is responsible for
+
+reviewing and publishing all official repositories content.
+
+It is also ensured that security updates are
+
+applied in a timely manner for official images.
+
+So when we get started with Docker, try to use official
+
+images so that we can get the most support from the community.
+
+All the other repositories are also mysql repositories
+
+which presumably contains mysql images,
+
+They are contributed by other users in the community.
+
+So how can we tell which is an official image and which is not?
+
+First of all, as we mentioned before, official
+
+images usually come with an official mark.
+
+Also, the name of an unofficial image usually has a
+
+namespace before the actual image name which is often
+
+the user name of the user who created the repository.
+
+Here, let's click the link of the official mysql repository,
+
+we can see the information about this repo and
+
+clear documents about how to use this image.
+
+If I scroll up and click the tags tab,
+
+we can see the repository has several tags.
+
+In most of the cases, the tag means the version
+
+of the application or tool in this image.
+
+So an image is specified by its repository name and tag
+
+Even the same image might have multiple tags.
+
+If you don't specify a tag, Docker will
+
+use the default tag which is latest.
+
+We will get into more details about this when we start
+
+playing Docker run command in the next lecture.
+
+---------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+Docker Images layer
+--------------------------
+A Docker image is made up of a list of read-only
+
+layers that represent file system differences.
+
+Image layers are stacked on top of each other
+
+to form a base for the container's filesystem
+
+Take a look at this diagram here.
+
+Each image consists of multiple layers.
+
+And each layer is just another image.
+
+The image below is referred to as the parent image.
+
+We call the image at the very bottom as the base image.
+
+Docker is pulling the images layer by layer.
+
+You can also check the full set of layers can make
+
+up an image by running the Docker history command.
+
+As you see, busybox image consists of two layers. The base layer
+
+is to add a file and the second layer is to run bash.
+
+When we create a new container, you add a new, thin and
+
+writable layer on top of the underlying stack.
+
+This layer is often called the "writable container layer".
+
+All changes made to the running container, such as writing new
+
+files, modifying existing files, and deleting files
+
+are written to this thin writable container layer.
+
+The major difference between a container and an image
+
+is the top writable layer. All writes to the container
+
+that add new or modify existing data are stored in this
+
+writable layer. When the container is deleted the
+
+writable layer is also deleted.
+
+The underlying image remains unchanged.
+
+Because each container has its own thin writable container
+
+layer, and all changes are stored in this container layer,
+
+This means that multiple containers can share access to
+
+the same underlying image and yet have their own data state.
+
+The diagram shows multiple containers sharing
+
+the same Ubuntu 15.04 image.
+----------------------------------------------------------------
+-------------------------------------------------------------
+Docker Network Model
+------------------
+Docker uses the networking capabilities of the host
+
+machine operating system to provide networking
+
+support for the containers running on the host machine.
+
+Once the Docker daemon is installed on the host machine,
+
+A bridge network interface "Docker 0" is provisioned on
+
+the host which will be used to bridge the traffic from the
+
+outside network to the internal containers hosted on the host machine.
+
+Each container connects to the bridge network
+
+through its container network interface.
+
+Containers can connect to each other and connect to the
+
+outside world through this bridge network interface.
+
+This is how the default Docker network model
+
+called bridge network looks like.
+
+There are actually four different types of Docker networks:
+
+closed network which is also called none network,
+
+bridge network, host network and overlay network.
+
+We will deep dive into each of those four different
+
+networks in the following lectures, so that you can
+
+make an educated decision to choose which Docker
+
+network model to use when creating Docker containers.
+
+Before we finish this lecture, I want to show you
+
+How to check the existing Docker networks on your laptop.
+
+Just bring up a terminal and type "Docker network ls".
+
+By default, there should be three networks created
+
+out of the box when Docker is installed on your laptop:
+
+the bridge network, the host network and the none network.
+
+That's it for this lecture, I hope you have enjoyed it.
+------------------------------------------------------------------------
+	1. NONE Network
+		In this lecture, we are going to talk about the none network.
+
+This network does not have any access to the outside world.
+
+The none network adds a container to a container-specific
+
+network stack. That container lacks a network interface,
+
+so it is totally isolated. This kind
+
+of container is called closed container.
+
+Let's see this in action.
+
+In order to create a closed container, we can
+
+use the "--net none" option in the
+
+"docker run" command.
+
+Here we do "docker run --net none busybox sleep 1000".
+
+This should start up a closed container in the
+
+none network from the busybox image. "Sleep 1000"
+
+should keep the container in a running state.
+
+Now let's log into the container and verify
+
+that this is indeed an isolated container.
+
+We copy the container ID first, do "docker exec -it",
+
+paste the container ID and do "/bin/ash".
+
+In case you don't know ash, ash is a very lightweight Unix shell.
+
+Busybox is a tiny Linux distribution which
+
+comes with ash instead of bash shell.
+
+Now we are logged inside the container.
+
+To verify that we are disconnected from the outside world.
+
+We can ping Google public DNS IP which is 8.8.8.8.
+
+If we ping this IP from our host machine, as you see,
+
+there is no problem to reach Google public DNS.
+
+If we ping this IP from the closed container,
+
+the IP is unreachable.
+
+This container is isolated from the outside world.
+
+Now we run ifconfig command inside the container
+
+to list all the network interfaces of the container.
+
+As you see, there is only one network interface.
+
+This is a special type of interface called loopback
+
+interface. It is not connected to any networks
+
+and it is assigned a special IP address 127.0.0.1
+
+It is mainly used by internal applications on the
+
+local host machine to communicate with each other.
+
+The biggest benefit of this isolated network model
+
+is that it provides the maximum level of network protection
+
+because the containers can not be reached from outside the host.
+
+However, this network model won't be a good
+
+choice if network or Internet connection is required.
+
+For example, if the application requires
+
+making HTTP requests to the outside world.
+
+This isolated network suites well where the
+
+container require the maximum level of network
+
+security and network access is not necessary.
+
+That's it for this lecture. I hope you have enjoyed it.
+
+Hello and welcome back.
+
+In this lecture, we are going to talk about the none network.
+
+This network does not have any access to the outside world.
+
+The none network adds a container to a container-specific
+
+network stack. That container lacks a network interface,
+
+so it is totally isolated. This kind
+
+of container is called closed container.
+
+Let's see this in action.
+
+In order to create a closed container, we can
+
+use the "--net none" option in the
+
+"docker run" command.
+
+Here we do "docker run --net none busybox sleep 1000".
+
+This should start up a closed container in the
+
+none network from the busybox image. "Sleep 1000"
+
+should keep the container in a running state.
+
+Now let's log into the container and verify
+
+that this is indeed an isolated container.
+
+We copy the container ID first, do "docker exec -it",
+
+paste the container ID and do "/bin/ash".
+
+In case you don't know ash, ash is a very lightweight Unix shell.
+
+Busybox is a tiny Linux distribution which
+
+comes with ash instead of bash shell.
+
+Now we are logged inside the container.
+
+To verify that we are disconnected from the outside world.
+
+We can ping Google public DNS IP which is 8.8.8.8.
+
+If we ping this IP from our host machine, as you see,
+
+there is no problem to reach Google public DNS.
+
+If we ping this IP from the closed container,
+
+the IP is unreachable.
+
+This container is isolated from the outside world.
+
+Now we run ifconfig command inside the container
+
+to list all the network interfaces of the container.
+
+As you see, there is only one network interface.
+
+This is a special type of interface called loopback
+
+interface. It is not connected to any networks
+
+and it is assigned a special IP address 127.0.0.1
+
+It is mainly used by internal applications on the
+
+local host machine to communicate with each other.
+
+The biggest benefit of this isolated network model
+
+is that it provides the maximum level of network protection
+
+because the containers can not be reached from outside the host.
+
+However, this network model won't be a good
+
+choice if network or Internet connection is required.
+
+For example, if the application requires
+
+making HTTP requests to the outside world.
+
+This isolated network suites well where the
+
+container require the maximum level of network
+
+security and network access is not necessary.
+
+That's it for this lecture. I hope you have enjoyed it.
+
+-------------------------------------------------------------
+==================================
+2. BRIDGE Network
+another network model, the bridge network model.
+
+This is the default type of networks in Docker containers.
+
+All the containers in the same bridge network are
+
+connected with each other and they can connect to
+
+the outside world via the bridge network interface.
+
+Let's see it in action.
+
+Here I am at a new terminal. We do "Docker network ls"
+
+to list all the Docker networks on my local host.
+
+Docker creates a default bridge network called
+
+bridge when Docker daemon is initialized.
+
+We can check out the details of this bridge network
+
+by running "docker network inspect" command.
+
+As you see, the subnet "172.17.0.0/16"
+
+is allocated for this bridge network.
+
+The IP range of this subnet is from 172.17.0.0 to 172.17.255.255
+
+Now let's fire up our first container on this bridge network.
+
+Just do "docker run -d --name", we
+
+name the container "container_1".
+
+This time we run the busybox image as
+
+well, then sleep for 1000 seconds.
+
+In this docker run command, we don't specify
+
+"--net" flag, the built-in bridge network
+
+will be automatically chosen for the container.
+
+Now the container is up running.
+
+Let's run ifconfig inside the container to
+
+list all the network interfaces of the container.
+
+As you see, there are two network interfaces.
+
+A loopback interface and a private network interface.
+
+The loopback interface is the same as the one of the
+
+closed container of the previous lecture which is 127.0.0.1
+
+and it is used for internal applications and
+
+can't be connected to the outside world.
+
+The private network interface is connected to the bridge network.
+
+As we have demoed previously, the bridge network on the host
+
+machine has the IP range between 172.17.0.0 to 172.17.255.255.
+
+This network interface is exactly within the range.
+
+It can be used to acess other containers in the same bridge network.
+
+Let's prove that.
+
+Here we fire up another container "container_2"
+
+in the same bridge network.
+
+If we list all the network interfaces of this container.
+
+As you see the private network interface of the
+
+second container is 172.17.0.3 which is
+
+also winthin the IP range of the bridge network.
+
+Now, let's ping container 2 from container 1.
+
+As you see, container 1 can reach container 2
+
+by IP via the private network interfaces of each other.
+
+Containers can also use this private network
+
+interface to connect to the outside world.
+
+Let's ping 8.8.8.8 from container 1.
+
+See? We can reach the Google's public DNS from this container.
+
+Now we have demoed containers within the
+
+same bridge network can connect to each other.
+
+They can also connect to the outside world.
+
+However by default different bridge networks
+
+are isolated from each other; containers within
+
+one bridge network can't access to containers
+
+within another bridge network.
+
+Let's demo that.
+
+Here we create another custom bridge network.
+
+The command to create a Docker network
+
+is "docker network create".
+
+"docker network create" command takes a --driver
+
+option, which specifies the driver of the network,
+
+we use the bridge driver to create a bridge network.
+
+Then we need to give the new network a name.
+
+Just name it my bridge network.
+
+Now the network has been created.
+
+If we do "docker network ls"
+
+We can find out the newly created Docker network.
+
+Let's check out the IP range of this new network.
+
+The subnet is 172.18.0.0/16.
+
+And the IP range is from 172.18.0.0 to 172.18.255.255.
+
+Let's fire up container 3 from the new bridge network.
+
+Just add a "--net" option,
+
+and add the name of the new bridge network.
+
+Now if we check the IP of container 3,
+
+we can see it is within the IP
+
+range of the new bridge network.
+
+Next we get the IP of container 1.
+
+And ping container 1 from container 3.
+
+As you see, we can't reach container 1 from container 3,
+
+because they are within different bridge networks,
+
+and each bridge network is isolated from each other.
+
+But Docker has a feature which allows us to connect a
+
+container to another network. Once connected, the container
+
+can communicate with other containers in the same network.
+
+This is done via the "docker network connect" command.
+
+Let's see how it works.
+
+Here we want to connect container 3 to our old bridge network.
+
+So we can do "docker network connect bridge container_3"
+
+Now, if we list the network interfaces of container 3 again.
+
+We can see container 3 has one extra network interface
+
+which is exactly within the range of our old bridge network.
+
+Now if we ping contain 1 from container 3 again.
+
+See? We can reach container 1 this time as container
+
+3 has already connected to our old bridge network.
+
+We can also disconnect container 3 from the old bridge network.
+
+Just do "docker network disconnect bridge container_3"
+
+Now if we list the network interfaces, we can see
+
+the just added network interface has been removed.
+
+Let's recap.
+
+In this lecture we have demoed the bridge network model.
+
+In a bridge network, containers have access
+
+to two network interfaces: the loopback
+
+interface, which does not have network access to
+
+the outside and a private interface which is
+
+connected to the bridge network of the host.
+
+This is the one used to connect to the outside network.
+
+All containers in the same bridge
+
+network can communicate with each other.
+
+Containers from different bridge networks
+
+can't connect with each other by default.
+
+But we can manually connect a container to another bridge network.
+
+Bridge network is the most common network-model in Docker.
+
+Comparing with the none network we introduced previously,
+
+Bridge network reduces the level of network
+
+isolation in favor of better outside connectivity.
+
+A bridge network is most suitable where you want to
+
+set up a relatively small network on a single host.
+
+That's it for this lecture, I hope you have enjoyed it.
+
+===================================================
+
+
