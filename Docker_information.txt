@@ -1,0 +1,216 @@
+DOCKER INSTALLATION:-
+
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install docker-ce  
+sudo yum install docker-ce --allowerasing  >> if having some podman install, or conflict packages
+
+------------------
+To remove the docker
+1. sudo yum remove docker-ce docker-ce-cli containerd.io
+2. Images, container,volumes,config files are not removed directly from host; so delete manually via:-
+		sudo rm -rf /var/lib/docker
+		sudo rm -rf /var/lib/containerd
+3. sudo usermod -aG docker snabhi     #It'll add docker to the user group so that you wouldn't require password to enter each time
+4. After installing docker-ce  install docker-machine & compose
+	docker-machine:-
+							https://docs.docker.com/machine/install-machine/
+							Follow the instructions
+	compose:-
+					https://docs.docker.com/compose/install/
+					Follow the instructions.
+							
+5. Install  Visual studio code
+			1. First download the .rpm packages
+			2. sudo yum localinstall file.rpm   >> it'll install the package with the dependency.
+--------------------------
+https://landscape.cncf.io/
+---------------------
+Image Vs. Container
+1.Image:- is the binaries and libraries and source code that all make up your application. 
+2.The container is a running instance of that image running as a process
+3.you can have many containers all based off the same image. 
+4.We get all of our images from registries. Registries are kind of like what GitHub is to source code.
+  Image registries are for container images and the default one for Docker is Docker Hub
+ 5. Docker's default image is "registry" called Docker Hub
+ ---------------------------------------------------------------
+ What happens in 'docker container'
+	1. Looks for that image locally in image cache,doesn;t find anything
+	2. Then looks in remote image repository
+	3. Download the latest version
+	4. Create new container based on that image and prepares to start
+	5. Gives it a virtual Ip on private network inside docker engine
+	6. Opens up port 80 on host and forwards to port 80 in container.
+	7. Starts container by using cmd in the image Dockerfile
+=======================================================
+NAMESPACES
+Docker uses a technology called namespaces to provide the isolated workspace called the container
+These namespaces provide a layer of isolation. Each aspect of a container runs in a separate namespace and its access is limited to that namespace.
+CONTROL GROUPS
+Control Groups (cgroups) is a Linux kernel feature that limits, accounts for, and isolates the resource usage (CPU, memory, disk I/O, network, etc.) of a collection of processes.
+	
+PRIVILEGED CONTAINER
+	CHALLENGE :-  By default, the docker container does not have many capabilities assigned to it.
+							Docker containers are also not allowed to access any devices.
+							Hence, by default, docker container cannot perform various use-cases like run docker container inside a docker container
+
+------------------------------------------------------------------	
+ Container Vs VM.
+  
+ docker container run --publish 8080:80 nginx
+ 1.fisrt download image 'nginx' from docker hub
+  2. Start a new container from that image
+  3. Opened port 80 on the host ip; 8080 >> host listening port
+  4. Routes that traffic to the container Ip, port 80
+  
+  docker container run --publish 8080:80 --detach nginx
+	1. It'll run the docker in the background
+
+docker container ls >> list the container running
+docker container stop containerid >> stop the docker container
+
+docker ls -a >> it'll show all the container which was run ,& running  >> each time we use container a new container is opened.
+
+ docker container run --publish 80:80 --detach --name webhost nginx
+	It'll give the name mentioned during the launch .. 
+docker container logs name 	>> It'll give the logs 
+
+docker container top webhost >> It'll list the process running
+
+docker container rm -f pid >> to remove the docker 
+docker container stats
+docker container
+docker container inspect >> json format all the info , how it starts
+
+  
+docker container run -it   --name server nginx bash >> start new container interactively; bash will help to enter inside nginx server shell.
+docker container exec -it >> run additional command in existing container, it doesn't start new container	 
+
+docker container start -ai imagename
+-----------------------
+
+Docker Network: CLI MGMT
+docker network ls  >> show network
+docker network inspect  networkname>> inspect a 	network
+docker network create networkname	  >> attach a network to container
+docker network disconnect  >> Detach a network from container
+
+docker container run -d --name new_nginx --network networkname nginx >> run the container in detach mode i.e. logs will be  not showing
+docker network connect networkname containername  >> It'll join the container to the new network
+docker container inspect containername  >> It'll show the two diff network 
+docker network disconnect networkname containername  >> It'll disconnect the container from the new network
+
+---------------
+DOCKER DNS
+docker container run -d --name my_nginx --network netname image  >> It'll link the container to this network
+docker container exec -it containername1 ping containername2
+-------------
+docker container run -d --network roundrobinn --network-alias search elasticsearch:2
+
+----------------
+docker history imagename
+docker history image imagename
+docker image tag imagename newname(abhi/nginx) 
+docker image ls
+---------------------
+docker logs containername  > to checck the logs of the container
+
+Containers are meant to be immutable and ephemeral.
+
+Those are just fancy buzzwords for unchanging and temporary, or disposable.
+
+The idea here is that we can just throw away a container and create a new one from an image,
+
+docker volume prune >> to cleanup the unused volumes and make it easier to see what you are doing 
+
+===========================================
+docker container ls -aq   >> to get all the containers running
+---------------------------------------------------------------------------
+docker system df   >> to get the disk usage of docker i.e. component level metrics
+docker system df -v     >> it is used to see all the disk usage of each & specific container.
+--------------------------------------------------------------------------------------------------------------
+docker rmi repo:tag    >> to remove the image 
+docker container commit Container_ID myimage_name   >> to commit the changes in the running container.
+docker history imagename  >> to check the layers of the image
+docker image inspect imagename --format='{{.Id}}'    >>use format to fetch the specific record from the inspect
+docker image prune  >> is to cleanup unused images , by default it'll cleanup dangling images.
+Dangling Images:- are images without tag & image not referenced by any container.
+docker tag imagename username/reponame:tag    >> tag the image befor push to the repository.
+docker save image > image.tar       .... When want to share the dockerfile to another host then first save in .tar format then
+docker load < image.tar ................ this will load an image from a tar archive.
+brctl show  >>used to show the bridge id & interface
+route -n	>> used to show the routing in the machine
+==================================================
+Docker Swarm
+Docker Swarm is a container orchestration tool which is natively supported  by Docker
+container running in a service are called TASK
+In docker swarm we are having 1 manager node and other one is the worker node.
+ A replicated service, you specify the number of identical tasks you want to run. For example, you decide to deploy an NGINX service with two replicas, each serving the same content.
+A global service is a service that runs one task on every node.Each time you add a node to the swarm, the orchestrator creates a task and the scheduler assigns the task to the new node.
+
+docker swarm init  >> to initalize the manager node
+docker node ls >> to see the docker running node
+docker service create --name customname --replicas 1 imagename 
+docker service create imagename ping 8.8.8.8  >> to create a service container
+docker service ps servicename
+docker service update servicename  --replicas 3  >> Now 3 nodes will be running
+docker service scale servicename=5/6....anything {used to scale up 7 DOWN by giving the no)
+Difference between above 2 is that using SCALE we can scale any number of service but by using UPDATE we can give the replica of only 1 service not more.
+
+docker service create --name customname --mode global -dt imagename >> it'll create a global service i.e. in all the node this service will be up & running
+docker node update --availability drain nodename  >> this is used in scenarios like when one container is going for maintenance and will be shutdown so all the running service on that particular node  will be shifted to another node in order to save the service from any availability loss.
+docker node update --availability active nodename >> to bring back the node from drain to availability state.
+docker service inspect servicename --pretty >> to get the constraint details used for creating the service. You can also ignore --pretty .
+
+docker service create --name customname --replicas 1 --publish 8080:80 imagename  >> to publish the port
+================================================
+Docker Compose
+Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services.
+We can start all the services with a single command - docker compose up .  We can stop all the services with a single command - docker compose down
+ 
+ docker-compose config    >>if your yml file is correct you will see the value otherwise it'll give u the error
+ ===============================
+ docker stack can be used	 to manage a multi-service application.
+ & docker service is typically used for single container.
+A stack is a group of interrelated services that share dependencies and can be orchestrated and scaled together. A stack can compose a YAML file like the one that we define during Docker Compose. 
+
+docker stack deploy --compose-file filename.yml customname
+docker stack ps  >> to check the runnig container
+LOCK SWARM CLUSTER...............
+Swarm Cluster contains a lot of sensitive information, some of which includes:
+	TLS key used to encrypt communication among swarm node
+	Keys used to encrypt and decrypt the Raft logs on disk
+If your Swarm is compromised and if data is stored in plain-text, an attack can get all the sensitive information.
+Docker Lock allows us to have control over the keys.
+cd /var/lib/docker/swarm/certificates
+docker swarm update --autolock=true.  >> used to lock the swarm cluster and the password generated need to be saved as next time it'll ask for the password to perform any actions.
+to use the docker swarm now >>> docker swarm unlock   >> & then provide the password recieved from above command.
+docker swarm unlock-key  >> to get back the password for unlock .
+docker swarm unlock-key --rotate  >> to rotate the key 
+===================
+docker service create --name myconstraint --constraint node.labels.region==blr --replicas 3 nginx   >> creating service  with NODE label constraint
+docker node update --label-add region=mumbai IDname.    >> add a label to a running node
+================================================================
+Overlay network:-
+The overlay network driver creates a distributed network among multiple Docker daemon hosts. Overlay network allows containers connected to it to communicate securely. 
+docker network create -d overlay my-overlay        >>create a custom overlay network
+docker service create --name myoverlay --network mynetwork --replicas 3 nginx   >> create service in user-define overlay network.
+
+ Securing Overlay Networks
+	For the overlay networks, the containers can be spread across multiple servers.
+If the containers are communicating with each other, it is recommended to secure the communication.
+To enable encryption, when you create an overlay network pass the --opt encrypted flag:
+
+docker network create --opt encrypted --driver overlay my-overlay-secure-network
+-------Overlay network encryption is not supported on Windows.
+
+Docker manager node should not work as a worker node therefore always drain the manager node.
+When we run the docker as a manager node and if it get terminated then to recover the manager node initalize the node on the running manager node
+
+docker swarm init --force-new-clusteer --advertise-addr ip:port   >> command to make running node as a manager
+
+
+
+docker swarm join --token SWMTKN-1-14nlntktfsfdnqha8wgqygcc80yg5wokqa0yupqmgwqh6gugku-5woqn5xqli0u24qcg7ilr3spt 192.168.0.28:2377
+
+docker swarm join --token SWMTKN-1-14nlntktfsfdnqha8wgqygcc80yg5wokqa0yupqmgwqh6gugku-7tj7fkrvv1wk5a4fhq8zc4pkv 192.168.0.28:2377

@@ -1,0 +1,32 @@
+DEVOPS:-
+1. WATERFALL MODEL	
+	Requirement& gathering analysis>> Design >> Implement >> Test >> Deploy >> Maintenance
+2. Agile Methodology  >> Analyze> Plan > Design> Build > Test > Deploy
+			1st Iteration (Discover > Design> Develop) 2-8 week
+
+Solution of these two model :- DEVOPS
+Devops :- a s/w devlopment strategy that bridges the gap b/w  dev & op side of the company.
+Devops is a methodology :, so devops is a practice that equated  to study of building evolving & operating rapidly changing system at scale.
+=======================================================
+DEVOPS Stages:-
+1. Version Control (Source Code Mgmt):- Maintains diff version of code.
+2. Continuous Integration(Continuous Build ):- Compils,validate,code review,unit testing,integration testing
+3. Continuous Delivery(Continuous Testing) :- Deploying the build application to test servers, performing UAT
+4. Continuous Deployment( Configuration mgmt & Containerization):- Deploying the tested application on the prod server for release.
+All these stages comes under Continuous Monitoring.
+=====================================================
+Continuous Integration :-  it's a devlopment practice in which the developers are required to commit changes in the source code in a shared repository several times a day, every commit in the repository is then built this allow  the teams to detect the problems early.
+										Whenever the developers commit the code it is taken to the jenkin server and then it perform the Build. Build involve ( Comple,Code Review, Unit Testing, Integration testing, package(WAR,JAR,etc))
+Continuous Delivery :- I n this whatever is build during the continuous Integration is deploy on to the test server for UAT.
+Configuration mgmt:- Is the practice of handling changes systematically so that a system maintains its integrity over time 
+	Tools for Configuration mgmt :- CHEF, PUPPEPT, ANSIBLE, SALTSTACK
+
+Continuous Monitoring :- Is all about the ability of an organization to detect, report, respond, contain and mitigate the attacks that occur in its infrastructure.
+Nagios is used for Continuous Monitoring. Nagios is run on a server usually a Daemon or a service it periodically runs plugins residing on the same server, they contsct holes or servers on your network or internet. One can view the status info using web interface, alson you can receive email or sms if something happens.
+Plugins :- are compiled executable scripts that can be run from a command line to check the status of a host  or service.
+========================================================================
+Jenkins is the tool used for Continuous Integration.
+Jienkins:- Is an open source automation tool written in java with plygins built for Continuous Integration purpose.Plugins allows integration of various Devops stages.
+============================
+Ansible :- Is a configuration mgmt, Deployment & orchestration tool.
+It is "PUSH -BASED" configuration mgmt tool. It automates your entire IT infrastructure by providing large productivity gains.
